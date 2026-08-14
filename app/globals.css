@@ -1,26 +1,90 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* light cyan / blue / green palette */
+  --background: #f1f8f9;
+  --surface: #ffffff;
+  --foreground: #0f2a2e;
+  --muted: #55696e;
+  --line: #d8e7e9;
+
+  /* accent names kept for compatibility; values shifted to cool tones */
+  --gold: #0891b2; /* primary — cyan */
+  --gold-deep: #0e7490; /* deep cyan */
+  --gold-soft: #cdeef3; /* soft cyan */
+
+  --coral: #10b981; /* emerald green */
+  --teal: #14b8a6; /* teal */
+  --blue: #2563eb; /* blue */
+  --plum: #6366f1; /* indigo-blue */
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-gold-soft: var(--gold-soft);
+  --color-coral: var(--coral);
+  --color-teal: var(--teal);
+  --color-blue: var(--blue);
+  --color-plum: var(--plum);
+  --font-sans: var(--font-manrope);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Reveal targets start hidden to avoid flash before GSAP runs */
+[data-reveal],
+[data-hero] > * {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.gc-gradient-text {
+  background: linear-gradient(100deg, var(--blue), var(--teal) 50%, var(--coral));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  [data-reveal],
+  [data-hero] > * {
+    opacity: 1 !important;
+  }
 }
