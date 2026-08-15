@@ -85,7 +85,7 @@ export default function GoldcrilLanding() {
 
     const productTrack = root.current?.querySelector<HTMLElement>("[data-product-track]");
     const productSection = root.current?.querySelector<HTMLElement>("[data-products]");
-    if (productTrack && productSection && window.innerWidth >= 768) {
+    if (productTrack && productSection && window.innerWidth >= 1024) {
       const distance = () => Math.max(0, productTrack.scrollWidth - window.innerWidth + 80);
       gsap.to(productTrack, { x: () => -distance(), ease: "none", scrollTrigger: { trigger: productSection, start: "top top", end: () => `+=${distance() + window.innerHeight * 0.7}`, pin: true, scrub: 1, invalidateOnRefresh: true } });
     }
