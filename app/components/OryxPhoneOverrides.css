@@ -1,0 +1,6 @@
+.oryx-phone{z-index:5;isolation:isolate}
+.oryx-phone__body{z-index:2}
+.oryx-phone__front{z-index:3}
+.oryx-phone__back,.oryx-phone__side{z-index:1}
+.oryx-phone__color-card{z-index:10}
+.oryx-phone__shadow{z-index:0}

@@ -2,846 +2,164 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import {
-  PaintRoller,
-  SprayCan,
-  Layers,
-  Droplets,
-  Brush,
-  Palette,
-  Phone,
-  Camera,
-  MapPin,
-  MessageCircle,
-  ArrowUpRight,
-  ChevronDown,
-} from "lucide-react";
+import { ArrowDown, ArrowUpRight, Brush, Camera, Check, Droplets, Layers3, MapPin, MessageCircle, PaintRoller, Palette, Phone, ShieldCheck, Sparkles, SprayCan } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import Lenis from "lenis";
+import VariableProximity from "./VariableProximity";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
+import GlowHorizonFM from "@/components/ui/glow-horizon";
+import OryxPhone from "./OryxPhone";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-/* ---- business data ---- */
-const WA_MSG =
-  "Olá, eu gostaria de fazer um orçamento";
-
-function waLink(phone: string) {
-  return `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(
-    WA_MSG
-  )}`;
-}
+const WA_MSG = "Olá! Gostaria de fazer um orçamento com a Goldcril Tintas.";
+const INSTAGRAM = "https://www.instagram.com/goldcril_tintas/";
+const ADDRESS = "Abaixo do Supermercado Barão Residencial — Parque Maracanã, Goianira — GO";
+const MAPS_LINK = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(ADDRESS);
+const waLink = (phone: string) => `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(WA_MSG)}`;
 
 const SELLERS = [
-  {
-    name: "Beatriz",
-    role: "Vendedora",
-    phone: "5562985465857",
-    display: "(62) 98546-5857",
-    accent: "var(--coral)",
-  },
-  {
-    name: "Leonardo",
-    role: "Vendedor",
-    phone: "5562984715859",
-    display: "(62) 98471-5859",
-    accent: "var(--blue)",
-  },
+  { name: "Beatriz", phone: "5562985465857", display: "(62) 98546-5857", color: "#f4bd48" },
+  { name: "Leonardo", phone: "5562984715859", display: "(62) 98471-5859", color: "#55c6bf" },
 ];
 
-const INSTAGRAM = "https://www.instagram.com/goldcril_tintas/";
-const ADDRESS =
-  "Abaixo do Supermercado Barão Residencial - Parque Maracanã, Goianira - GO, 75370-073, Brazil";
-const MAPS_LINK =
-  "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(ADDRESS);
-
-const CATEGORIES = [
-  {
-    name: "Tinta Acrílica",
-    desc: "Fosco, acetinado e semibrilho para paredes internas e externas.",
-    color: "var(--blue)",
-    Icon: PaintRoller,
-  },
-  {
-    name: "Esmalte & Verniz",
-    desc: "Acabamento premium para madeira e metal, alta durabilidade.",
-    color: "var(--coral)",
-    Icon: SprayCan,
-  },
-  {
-    name: "Texturas & Efeitos",
-    desc: "Grafiato, cimento queimado e efeitos decorativos exclusivos.",
-    color: "var(--teal)",
-    Icon: Layers,
-  },
-  {
-    name: "Impermeabilizantes",
-    desc: "Proteção contra umidade para lajes, telhados e alvenaria.",
-    color: "var(--plum)",
-    Icon: Droplets,
-  },
-  {
-    name: "Acessórios",
-    desc: "Rolos, pincéis, fitas, lixas e tudo para a obra ficar perfeita.",
-    color: "var(--gold-deep)",
-    Icon: Brush,
-  },
-  {
-    name: "Cores Personalizadas",
-    desc: "Máquina de tingimento: milhares de cores na hora que você quiser.",
-    color: "var(--gold)",
-    Icon: Palette,
-  },
+const PRODUCTS = [
+  { number: "01", name: "Tintas acrílicas", text: "Cobertura, rendimento e acabamento impecável para áreas internas e externas.", color: "#38b9d1", Icon: PaintRoller },
+  { number: "02", name: "Esmaltes & vernizes", text: "Proteção duradoura e beleza para madeira, metal e outras superfícies.", color: "#f2b846", Icon: SprayCan },
+  { number: "03", name: "Texturas & efeitos", text: "Personalidade para paredes com grafiato, cimento queimado e efeitos exclusivos.", color: "#eb7359", Icon: Layers3 },
+  { number: "04", name: "Impermeabilizantes", text: "Barreira eficiente contra infiltrações, umidade e ação do tempo.", color: "#456de6", Icon: Droplets },
+  { number: "05", name: "Acessórios", text: "Rolos, pincéis, fitas e tudo o que deixa a execução mais precisa.", color: "#58b97c", Icon: Brush },
+  { number: "06", name: "Sua cor, na hora", text: "Milhares de possibilidades no sistema tintométrico, preparadas para você.", color: "#a66ee7", Icon: Palette },
 ];
 
 const BENEFITS = [
-  { n: "01", t: "Atendimento especializado", d: "Ajudamos você a escolher o produto e a cor certa para cada ambiente." },
-  { n: "02", t: "Marcas de confiança", d: "Trabalhamos com linhas reconhecidas e produtos de alto rendimento." },
-  { n: "03", t: "Cor na hora", d: "Sistema de tingimento para acertar o tom exato que você imaginou." },
-  { n: "04", t: "Preço justo", d: "Condições especiais para pintores, obras e clientes fiéis." },
+  ["01", "Escolha sem dúvida", "Atendimento técnico para combinar produto, superfície e acabamento."],
+  ["02", "Cor do seu jeito", "Ajustamos o tom na hora para transformar referência em realidade."],
+  ["03", "Obra que rende", "Produtos selecionados para cobrir mais, durar mais e evitar retrabalho."],
+  ["04", "Perto de você", "Atendimento direto, humano e rápido em Goianira e região."],
 ];
-
-/* ---- paint splats ----
-   Each card gets its own splat: an irregular blob with a few long "spike" drips
-   plus scattered satellite droplets. Shapes are generated from a deterministic
-   pseudo-noise (pure Math.sin, so server and client render identically — no
-   hydration mismatch), then run through the #gc-ink filter for wet ragged edges. */
-function splatNoise(seed: number, i: number) {
-  const s = Math.sin(seed * 127.1 + i * 311.7) * 43758.5453;
-  return s - Math.floor(s); // 0..1, deterministic
-}
-
-function buildSplat(seed: number) {
-  const n = 16;
-  const cx = 100;
-  const cy = 100;
-  const inView = (x: number, y: number) => x > 4 && x < 196 && y > 4 && y < 196;
-  type Dot = { cx: number; cy: number; r: number };
-  const dots: Dot[] = [];
-
-  // --- irregular central mass: small lobes with a few big pushes ---
-  const pts: [number, number][] = [];
-  for (let i = 0; i < n; i++) {
-    const t = splatNoise(seed, i);
-    const bump = t > 0.72 ? 30 : t < 0.25 ? -10 : 8;
-    const r = 30 + bump + splatNoise(seed, i + 40) * 10;
-    const a = (i / n) * Math.PI * 2;
-    pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
-  }
-  const mid = (i: number): [number, number] => {
-    const [x1, y1] = pts[i];
-    const [x2, y2] = pts[(i + 1) % n];
-    return [(x1 + x2) / 2, (y1 + y2) / 2];
-  };
-  let d = `M${mid(n - 1)[0].toFixed(1)} ${mid(n - 1)[1].toFixed(1)}`;
-  for (let i = 0; i < n; i++) {
-    const [qx, qy] = pts[i];
-    const [ex, ey] = mid(i);
-    d += `Q${qx.toFixed(1)} ${qy.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`;
-  }
-  d += "Z";
-
-  // --- flung droplet trails: each streak is a line of shrinking dots ---
-  const streaks = 5 + Math.floor(splatNoise(seed, 99) * 2); // 5-6
-  for (let s = 0; s < streaks; s++) {
-    const a = (s / streaks) * Math.PI * 2 + (splatNoise(seed, s + 3) - 0.5) * 1.1;
-    const cnt = 2 + Math.floor(splatNoise(seed, s + 11) * 3); // 2-4 droplets
-    let dist = 40 + splatNoise(seed, s + 17) * 12;
-    let rr = 5.5 + splatNoise(seed, s + 23) * 5;
-    for (let k = 0; k < cnt; k++) {
-      const px = cx + Math.cos(a) * dist;
-      const py = cy + Math.sin(a) * dist;
-      if (inView(px, py)) {
-        dots.push({ cx: +px.toFixed(1), cy: +py.toFixed(1), r: +Math.max(1, rr).toFixed(1) });
-      }
-      dist += 9 + splatNoise(seed, s * 7 + k) * 13;
-      rr *= 0.6;
-    }
-  }
-
-  // --- scattered fine specks ---
-  for (let j = 0; j < 5; j++) {
-    const a = splatNoise(seed, j + 70) * Math.PI * 2;
-    const dist = 46 + splatNoise(seed, j + 80) * 42;
-    const px = cx + Math.cos(a) * dist;
-    const py = cy + Math.sin(a) * dist;
-    if (inView(px, py)) {
-      dots.push({ cx: +px.toFixed(1), cy: +py.toFixed(1), r: +(1.2 + splatNoise(seed, j + 90) * 2.6).toFixed(1) });
-    }
-  }
-
-  return { d, dots };
-}
-
-// one distinct splat per product card
-const SPLATS = Array.from({ length: 6 }, (_, k) => buildSplat(k * 3 + 1));
-
-function InkSplat({
-  color,
-  index,
-  className,
-}: {
-  color: string;
-  index: number;
-  className?: string;
-}) {
-  const s = SPLATS[index % SPLATS.length];
-  return (
-    <svg
-      viewBox="0 0 200 200"
-      className={className}
-      aria-hidden="true"
-      style={{ filter: "url(#gc-ink)" }}
-    >
-      <g fill={color}>
-        <path d={s.d} />
-        {s.dots.map((dot, i) => (
-          <circle key={i} cx={dot.cx} cy={dot.cy} r={dot.r} />
-        ))}
-      </g>
-    </svg>
-  );
-}
 
 export default function GoldcrilLanding() {
   const root = useRef<HTMLDivElement>(null);
+  const heroText = useRef<HTMLDivElement>(null);
 
-  useGSAP(
-    () => {
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  useGSAP(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
 
-      /* smooth scrolling (Lenis) drives ScrollTrigger from the GSAP ticker,
-         so the video scrub and slides feel fluid instead of stepped */
-      let lenis: Lenis | undefined;
-      let lenisTicker: ((time: number) => void) | undefined;
-      if (!reduce) {
-        lenis = new Lenis({ lerp: 0.075, wheelMultiplier: 0.85 });
-        lenis.on("scroll", ScrollTrigger.update);
-        lenisTicker = (time: number) => lenis!.raf(time * 1000);
-        gsap.ticker.add(lenisTicker);
-        gsap.ticker.lagSmoothing(0);
-      }
-      const cleanup = () => {
-        if (lenisTicker) gsap.ticker.remove(lenisTicker);
-        lenis?.destroy();
-      };
+    const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
+    intro
+      .from("[data-nav]", { y: -30, opacity: 0, duration: 0.8 })
+      .from("[data-hero-line]", { yPercent: 110, rotate: 2, stagger: 0.1, duration: 1.1 }, "-=.4")
+      .from("[data-hero-copy], [data-hero-actions]", { y: 24, opacity: 0, stagger: 0.12, duration: 0.8 }, "-=.65")
+      .from("[data-orb]", { scale: 0.6, opacity: 0, duration: 1.4, ease: "expo.out" }, "-=1.1");
 
-      /* ===== INK VIDEO — auto-plays a short intro, then the SCROLL drives it:
-         while you scroll down through the pinned hero, the video keeps advancing
-         and never pauses. Spread over HERO_SCROLL so it stays calm, not fast. ===== */
-      // scroll distance the pinned hero occupies — bigger = slower video + slower
-      // panel slide (spread over more scroll). Tune this to control the pace.
-      const HERO_SCROLL = "+=180%";
-      const video = root.current?.querySelector<HTMLVideoElement>("[data-hero-video]");
-      const INTRO_END = 5; // seconds the video auto-plays before handing to scroll
-      const VIDEO_END = 16; // furthest second the scroll advances the video to
-      let introDone = false;
+    gsap.to("[data-progress]", { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: true } });
+    gsap.to("[data-parallax-image]", { yPercent: 16, ease: "none", scrollTrigger: { trigger: "[data-hero]", start: "top top", end: "bottom top", scrub: .7 } });
+    gsap.utils.toArray<HTMLElement>("[data-depth]").forEach((layer) => gsap.fromTo(layer, { yPercent: -10 }, { yPercent: 10, ease: "none", scrollTrigger: { trigger: layer.parentElement, start: "top bottom", end: "bottom top", scrub: .8 } }));
+    gsap.to("[data-orb]", { yPercent: 20, rotate: 18, ease: "none", scrollTrigger: { trigger: "[data-hero]", start: "top top", end: "bottom top", scrub: 1 } });
+    gsap.to("[data-hero-content]", { yPercent: 22, opacity: 0.1, ease: "none", scrollTrigger: { trigger: "[data-hero]", start: "45% top", end: "bottom top", scrub: true } });
+    gsap.timeline({ scrollTrigger: { trigger: "[data-hero]", start: "top top", end: "bottom top", scrub: 1.1 } })
+      .to("[data-liquid-stage]", { scale: .84, rotation: -7, yPercent: 26, ease: "none" }, 0)
+      .to(".chip-one", { yPercent: -80, z: 80, rotationY: 10, ease: "none" }, 0)
+      .to(".chip-two", { yPercent: -52, z: -35, rotationY: -9, filter: "blur(1.2px)", ease: "none" }, 0)
+      .to(".liquid-blob", { scale: 1.15, rotation: 18, stagger: .04, ease: "none" }, 0);
 
-      if (video) {
-        const startIntro = () => {
-          video.pause();
-          gsap.to(video, {
-            currentTime: INTRO_END,
-            duration: INTRO_END + 0.6,
-            ease: "power2.out",
-            onComplete: () => {
-              introDone = true;
-            },
-          });
-        };
-        if (video.readyState >= 1) startIntro();
-        else video.addEventListener("loadedmetadata", startIntro, { once: true });
+    const hero = root.current?.querySelector<HTMLElement>("[data-hero]");
+    const moveX = gsap.quickTo("[data-liquid-stage]", "x", { duration: 1.2, ease: "power3.out" });
+    const moveY = gsap.quickTo("[data-liquid-stage]", "y", { duration: 1.2, ease: "power3.out" });
+    const particleX = gsap.quickTo("[data-particles]", "x", { duration: 1.8, ease: "power3.out" });
+    const particleY = gsap.quickTo("[data-particles]", "y", { duration: 1.8, ease: "power3.out" });
+    const handlePointer = (event: PointerEvent) => {
+      const x = event.clientX / window.innerWidth - .5, y = event.clientY / window.innerHeight - .5;
+      moveX(x * 34); moveY(y * 24); particleX(x * -22); particleY(y * -16);
+      gsap.to(".chip-one", { rotationY: x * 18, rotationX: y * -14, x: x * 18, y: y * 12, duration: .55, ease: "power2.out", overwrite: "auto" });
+      gsap.to(".chip-two", { rotationY: x * -14, rotationX: y * 10, x: x * -11, y: y * -8, duration: .7, ease: "power2.out", overwrite: "auto" });
+    };
+    if (window.matchMedia("(pointer:fine) and (min-width:768px)").matches) hero?.addEventListener("pointermove", handlePointer);
 
-        // scrub against the WHOLE document scroll — the video keeps advancing as
-        // long as you scroll down and never pauses when the hero pin releases
-        ScrollTrigger.create({
-          start: 0,
-          end: "max",
-          scrub: 0.6,
-          onUpdate: (self) => {
-            if (!introDone) return;
-            const cap = Number.isFinite(video.duration)
-              ? Math.min(VIDEO_END, video.duration - 0.05)
-              : VIDEO_END;
-            video.currentTime = INTRO_END + self.progress * Math.max(0, cap - INTRO_END);
-          },
-        });
-      }
+    gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
+      gsap.from(el, { y: 70, opacity: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 88%" } });
+    });
 
-      /* ===== HERO STAGE — horizontal pinned transition (hero → "Por que comprar") ===== */
-      gsap.set("[data-panel-second]", { xPercent: -100 });
+    const productTrack = root.current?.querySelector<HTMLElement>("[data-product-track]");
+    const productSection = root.current?.querySelector<HTMLElement>("[data-products]");
+    if (productTrack && productSection && window.innerWidth >= 768) {
+      const distance = () => Math.max(0, productTrack.scrollWidth - window.innerWidth + 80);
+      gsap.to(productTrack, { x: () => -distance(), ease: "none", scrollTrigger: { trigger: productSection, start: "top top", end: () => `+=${distance() + window.innerHeight * 0.7}`, pin: true, scrub: 1, invalidateOnRefresh: true } });
+    }
 
-      const stageTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: "[data-stage]",
-          start: "top top",
-          end: HERO_SCROLL,
-          scrub: 0.6,
-          pin: true,
-          anticipatePin: 1,
-        },
-      });
-      stageTl
-        // panels finish in the first ~55% of the pin — content leaves earlier
-        // and snappier, then the timeline holds while the video keeps scrubbing
-        .to("[data-panel-hero]", { xPercent: 100, yPercent: 100, ease: "power2.in", duration: 0.35 }, 0)
-        // 3D turn on the hero content as it flies off toward the bottom-right
-        .to(
-          "[data-hero]",
-          {
-            rotationY: 55,
-            rotationX: 14,
-            z: -320,
-            scale: 0.82,
-            opacity: 0.35,
-            transformPerspective: 1000,
-            transformOrigin: "center center",
-            ease: "power2.in",
-            duration: 0.35,
-          },
-          0
-        )
-        .to("[data-panel-second]", { xPercent: 0, ease: "power1.in", duration: 0.55 }, 0)
-        .to({}, { duration: 0.45 });
+    gsap.utils.toArray<HTMLElement>("[data-benefit]").forEach((card, i) => {
+      gsap.from(card, { x: i % 2 ? 80 : -80, opacity: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: card, start: "top 88%" } });
+    });
 
-      if (reduce) return cleanup;
-
-      /* scroll progress bar */
-      gsap.to("[data-progress]", {
-        scaleX: 1,
-        ease: "none",
-        scrollTrigger: { scrub: 0.3, start: 0, end: "max" },
-      });
-
-      /* hero intro — entry (fromTo so the CSS opacity:0 is the START, not the end) */
-      gsap
-        .timeline({ defaults: { ease: "power3.out", duration: 0.9 } })
-        .fromTo(
-          "[data-hero] > *",
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, stagger: 0.12 }
-        )
-        .fromTo(
-          "[data-blob]",
-          { scale: 0, opacity: 0 },
-          { scale: 1, opacity: 1, stagger: 0.15, duration: 1.1, ease: "back.out(1.6)" },
-          "-=0.7"
-        );
-
-      /* floating blobs — continuous ambient motion */
-      gsap.utils.toArray<HTMLElement>("[data-blob]").forEach((b, i) => {
-        gsap.to(b, {
-          y: i % 2 ? 26 : -26,
-          x: i % 2 ? -18 : 18,
-          duration: 4 + i,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-        });
-      });
-
-      /* generic reveal — ENTRY on enter, EXIT (reverse) on leave, both directions */
-      gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
-        gsap.fromTo(
-          el,
-          { y: 60, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.9,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 88%",
-              end: "bottom 12%",
-              toggleActions: "play reverse play reverse",
-            },
-          }
-        );
-      });
-
-      /* staggered groups — cards animate in/out together */
-      gsap.utils.toArray<HTMLElement>("[data-stagger]").forEach((group) => {
-        gsap.fromTo(
-          group.children,
-          { y: 70, opacity: 0, scale: 0.96 },
-          {
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            duration: 0.8,
-            ease: "power3.out",
-            stagger: 0.1,
-            scrollTrigger: {
-              trigger: group,
-              start: "top 85%",
-              end: "bottom 10%",
-              toggleActions: "play reverse play reverse",
-            },
-          }
-        );
-      });
-
-      /* wet-ink breathing — animates the #gc-ink filter so the card splats
-         wobble subtly at their ragged edges */
-      gsap.to("#gc-ink feDisplacementMap", {
-        attr: { scale: 7 },
-        duration: 3.5,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-
-      /* section titles — sliding underline that grows then retracts on exit */
-      gsap.utils.toArray<HTMLElement>("[data-underline]").forEach((el) => {
-        gsap.fromTo(
-          el,
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            transformOrigin: "left center",
-            duration: 0.7,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 90%",
-              end: "bottom 20%",
-              toggleActions: "play reverse play reverse",
-            },
-          }
-        );
-      });
-
-      return cleanup;
-    },
-    { scope: root }
-  );
+    return () => { hero?.removeEventListener("pointermove", handlePointer); };
+  }, { scope: root });
 
   return (
-    <div ref={root} className="relative">
-      {/* scroll progress */}
-      <div
-        data-progress
-        className="fixed left-0 top-0 z-50 h-1 w-full origin-left scale-x-0 bg-gradient-to-r from-gold-deep via-gold to-coral"
-      />
-
-      {/* ink filter used by the section dividers */}
-      <svg className="pointer-events-none absolute h-0 w-0" aria-hidden="true">
-        <defs>
-          <filter id="gc-ink" x="-10%" y="-500%" width="120%" height="1100%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.015 0.06" numOctaves="2" seed="7" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
-        </defs>
-      </svg>
-
-      {/* NAV */}
-      <header className="fixed inset-x-0 top-0 z-40">
-        <nav className="mx-auto mt-3 flex max-w-6xl items-center justify-between rounded-full border border-line/70 bg-surface/80 px-4 py-2.5 backdrop-blur-md sm:px-6">
-          <a href="#top" className="flex items-center" aria-label="Goldcril Tintas">
-            <Image
-              src="/images/logonobg.png"
-              alt="Goldcril Tintas"
-              width={640}
-              height={640}
-              priority
-              className="h-11 w-auto origin-left scale-[1.95]"
-            />
-          </a>
-          <div className="hidden items-center gap-7 text-sm font-semibold text-muted md:flex">
-            <a href="#produtos" className="transition-colors hover:text-foreground">Produtos</a>
-            <a href="#diferenciais" className="transition-colors hover:text-foreground">Diferenciais</a>
-            <a href="#vendedores" className="transition-colors hover:text-foreground">Vendedores</a>
-            <a href="#local" className="transition-colors hover:text-foreground">Onde estamos</a>
-          </div>
-          <a
-            href="#vendedores"
-            className="rounded-full bg-foreground px-4 py-2 text-sm font-bold text-surface transition-transform hover:scale-105"
-          >
-            Orçamento
-          </a>
+    <div ref={root} className="site-shell">
+      <div data-progress className="scroll-progress" />
+      <header data-nav className="nav-wrap">
+        <nav className="nav-inner nav-redesign" aria-label="Navegação principal">
+          <a href="#inicio" className="brand nav-brand" aria-label="Goldcril Tintas — início"><Image src="/images/goldcril-liquid-logo.png" alt="Goldcril Tintas" width={1900} height={800} priority /></a>
+          <div className="nav-links nav-menu"><a href="#produtos">Produtos</a><a href="#diferenciais">Diferenciais</a><a href="#contato">Contato</a></div>
+          <a href={waLink(SELLERS[0].phone)} target="_blank" rel="noreferrer" className="nav-cta nav-budget"><span>Falar com a gente</span><span className="nav-arrow"><ArrowUpRight size={16} /></span></a>
         </nav>
       </header>
 
-      {/* HERO + SECOND SECTION — horizontal pinned stage.
-          Video plays an intro, then scroll scrubs it frame-by-frame while
-          the hero slides right and section two slides in from the left. */}
-      <section id="top" data-stage className="relative h-dvh overflow-hidden">
-        {/* INK VIDEO — background for the HERO ONLY; scrubs while the stage is
-            pinned, then the sections below scroll over a plain background */}
-        <div className="absolute inset-0 z-0 isolate">
-          <video
-            data-hero-video
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-            style={{ filter: "saturate(1.25)" }}
-            muted
-            playsInline
-            preload="auto"
-            aria-hidden="true"
-          >
-            <source src="/videos/ink-scroll-scrub.mp4" type="video/mp4" />
-          </video>
-          {/* blue tint — recolors the ink toward blue (hue only, keeps luminance) */}
-          <div className="pointer-events-none absolute inset-0 bg-blue opacity-30 mix-blend-color" />
-          {/* light wash keeps the theme bright and everything readable over the ink */}
-          <div className="pointer-events-none absolute inset-0 bg-background/70" />
-        </div>
-
-        {/* PANEL 1 — HERO CONTENT (slides right) */}
-        <div
-          data-panel-hero
-          className="absolute inset-0 z-20 flex items-center justify-center px-5"
-        >
-          <div data-hero className="relative mx-auto flex max-w-4xl flex-col items-center text-center">
-            <h1 className="text-[2.75rem] font-extrabold leading-[1.02] tracking-tight sm:text-7xl">
-              Cores que <span className="gc-gradient-text">transformam</span>
-              <br className="hidden sm:block" /> o seu espaço!
-            </h1>
-            <p className="mx-auto mt-6 max-w-xl text-lg font-semibold text-foreground [text-shadow:0_1px_10px_rgba(241,248,249,0.9)] sm:text-xl">
-              Tintas, texturas e acabamentos com atendimento que entende de obra —
-              a gente acerta a cor, você aproveita o resultado.
-            </p>
-            <div className="mt-9 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
-              <a
-                href="#vendedores"
-                className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-gold px-7 py-3.5 font-bold text-white shadow-lg shadow-gold/30 transition-transform hover:-translate-y-0.5 sm:w-auto"
-              >
-                <MessageCircle className="h-5 w-5" />
-                Pedir orçamento
-              </a>
-              <a
-                href="#produtos"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-line bg-surface/80 px-7 py-3.5 font-bold text-foreground backdrop-blur-sm transition-colors hover:border-gold sm:w-auto"
-              >
-                Ver produtos
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
-            </div>
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold text-foreground/80">
-              {SELLERS.map((s) => (
-                <a
-                  key={s.phone}
-                  href={waLink(s.phone)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-surface/70 px-3 py-1.5 backdrop-blur-sm transition-colors hover:text-gold-deep"
-                >
-                  <Phone className="h-4 w-4 text-teal" />
-                  {s.name} · {s.display}
-                </a>
-              ))}
-            </div>
-            <p className="pointer-events-none mt-10 flex items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-muted">
-              Role para explorar
-              <ChevronDown className="h-4 w-4 animate-bounce" />
-            </p>
+      <main>
+        <section id="inicio" data-hero className="hero">
+          <div className="hero-aurora" />
+          <div className="hero-horizon"><GlowHorizonFM variant="bottom" /></div>
+          <div data-particles className="hero-particles" aria-hidden="true">{Array.from({length:14},(_,i)=><i key={i} style={{left:`${(i*37)%96}%`,top:`${(i*53)%88}%`,width:`${3+(i%4)*2}px`,height:`${3+(i%4)*2}px`,animationDelay:`-${i*.47}s`,animationDuration:`${4+(i%5)}s`}} />)}</div>
+          <div data-orb data-liquid-stage className="liquid-stage" aria-hidden="true">
+            <div className="liquid-canvas"><Image data-parallax-image src="/images/generated/goldcril-interior-4k.png" alt="" fill sizes="(max-width: 767px) 72vw, 42vw" priority/><i className="liquid-blob blob-a"/><i className="liquid-blob blob-b"/><i className="liquid-blob blob-c"/></div>
+            <div className="liquid-glass-lite"><div className="liquid-shine" /></div>
+            <div className="floating-chip chip-glass chip-one"><span className="chip-dot" /> + de 1.000 cores</div>
+            <div className="floating-chip chip-glass chip-two"><Sparkles size={16} /> Cor feita na hora</div>
           </div>
-        </div>
-
-        {/* PANEL 2 — SECOND SECTION (slides in from the left) */}
-        <div
-          data-panel-second
-          id="diferenciais"
-          className="absolute inset-0 z-30 flex items-center px-5"
-        >
-          <div className="mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-2">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-1.5 text-sm font-semibold text-muted">
-                <Palette className="h-4 w-4 text-gold-deep" /> Diferenciais
-              </span>
-              <h2 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-6xl">
-                Por que comprar na <span className="gc-gradient-text">Goldcril</span>
-              </h2>
-              <span className="mt-5 block h-1 w-28 rounded bg-gold" />
-              <p className="mt-6 max-w-md text-lg text-foreground/80">
-                Mais que vender tinta: a gente orienta cada etapa da sua obra pra
-                você comprar certo, gastar bem e ter um acabamento que dura.
-              </p>
-              <a
-                href="#vendedores"
-                className="mt-7 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3.5 font-bold text-white shadow-lg shadow-gold/30 transition-transform hover:-translate-y-0.5"
-              >
-                <MessageCircle className="h-5 w-5" /> Falar com um vendedor
-              </a>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {BENEFITS.map((b) => (
-                <div
-                  key={b.n}
-                  className="rounded-2xl border border-line bg-surface/95 p-6 backdrop-blur-sm transition-transform hover:-translate-y-1"
-                >
-                  <span className="inline-grid h-11 w-11 place-items-center rounded-xl bg-gold-soft text-lg font-extrabold text-gold-deep">
-                    {b.n}
-                  </span>
-                  <h3 className="mt-4 text-lg font-bold">{b.t}</h3>
-                  <p className="mt-2 text-sm text-muted">{b.d}</p>
-                </div>
-              ))}
-            </div>
+          <div ref={heroText} data-hero-content className="hero-content">
+            <p data-hero-copy className="eyebrow"><Sparkles size={14} /> Tinta certa. Resultado extraordinário.</p>
+            <h1><span className="line-mask"><span data-hero-line><VariableProximity label="Sua casa merece" containerRef={heroText} radius={150} fromFontVariationSettings="'wght' 650" toFontVariationSettings="'wght' 850" /></span></span><span className="line-mask hero-accent"><span data-hero-line><VariableProximity label="mais cor." containerRef={heroText} radius={125} fromFontVariationSettings="'wght' 400" toFontVariationSettings="'wght' 700" /></span></span></h1>
+            <p data-hero-copy className="hero-copy">Tintas, texturas e acabamentos com orientação de verdade para você acertar de primeira — na cor, no produto e no resultado.</p>
+            <div data-hero-actions className="hero-actions"><LiquidButton className="hero-liquid-cta" onClick={()=>document.querySelector("#contato")?.scrollIntoView({behavior:"smooth"})}><MessageCircle size={19} /> Pedir orçamento</LiquidButton><a className="button button-glass" href="#produtos">Explorar produtos <ArrowDown size={18} /></a></div>
           </div>
-        </div>
-      </section>
+          <div className="hero-index"><span>GOLDCRIL®</span><span>GOIANIRA — GO</span><span>SCROLL / 01—05</span></div>
+        </section>
 
-      {/* PRODUCTS */}
-      <section id="produtos" className="px-5 py-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="max-w-2xl">
-            <h2 data-reveal className="text-3xl font-extrabold tracking-tight sm:text-5xl">
-              O que você encontra
-            </h2>
-            <span data-underline className="mt-4 block h-1 w-28 rounded bg-coral" />
-            <p data-reveal className="mt-4 text-lg text-muted">
-              Linha completa para pintura residencial, comercial e obras.
-            </p>
+        <section className="manifesto">
+          <div className="manifesto-grid">
+            <p data-reveal className="section-kicker">A cor muda tudo</p>
+            <div><h2 data-reveal>Não vendemos só tinta.<br /><em>Ajudamos a transformar espaços.</em></h2><p data-reveal className="manifesto-copy">Da primeira dúvida ao último acabamento, nosso time indica a solução que faz sentido para sua obra, seu bolso e sua ideia.</p></div>
           </div>
-          <div data-stagger className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {CATEGORIES.map((c, i) => (
-              <div
-                key={c.name}
-                className="group relative overflow-hidden rounded-3xl border border-line bg-surface p-7 transition-transform hover:-translate-y-1.5"
-              >
-                <InkSplat
-                  color={c.color}
-                  index={i}
-                  className="pointer-events-none absolute -right-9 -top-9 h-32 w-32 origin-center opacity-15 transition-all duration-500 ease-out group-hover:scale-[1.4] group-hover:rotate-[20deg] group-hover:opacity-25"
-                />
-                <span
-                  className="inline-grid h-14 w-14 place-items-center rounded-2xl"
-                  style={{ background: `color-mix(in srgb, ${c.color} 14%, white)` }}
-                >
-                  <c.Icon className="h-7 w-7" style={{ color: c.color }} strokeWidth={2} />
-                </span>
-                <h3 className="mt-4 text-xl font-bold">{c.name}</h3>
-                <p className="mt-2 text-sm text-muted">{c.desc}</p>
-                <span
-                  className="mt-5 block h-1.5 w-12 rounded-full"
-                  style={{ background: c.color }}
-                />
-              </div>
-            ))}
+          <div className="marquee" aria-hidden="true"><div>CORES QUE TRANSFORMAM · ACABAMENTO QUE DURA · CORES QUE TRANSFORMAM · ACABAMENTO QUE DURA · </div></div>
+        </section>
+
+        <section className="parallax-gallery" aria-label="Ambientes transformados pela cor"><div className="parallax-frame frame-wide"><Image data-depth src="/images/generated/goldcril-interior-4k.png" alt="Sala contemporânea com composição artística em tinta verde e dourada" fill sizes="100vw" /></div><div className="parallax-caption"><span>MATÉRIA / COR / ESPAÇO</span><strong>A cor não ocupa.<br/>Ela transforma.</strong></div></section>
+
+        <section id="produtos" data-products className="products-section">
+          <div className="products-head"><div><p className="section-kicker">Tudo para a sua obra</p><h2>Uma solução para<br />cada superfície.</h2></div><p>Deslize para descobrir <ArrowUpRight size={17} /></p></div>
+          <div data-product-track className="product-track">
+            {PRODUCTS.map(({ number, name, text, color, Icon }) => <article className="product-card glass" key={number} style={{ "--card-color": color } as React.CSSProperties}><div className="product-top"><span>{number}</span><span className="product-icon"><Icon size={28} /></span></div><div><h3>{name}</h3><p>{text}</p></div><div className="product-line" /></article>)}
+            <article className="product-card product-contact"><Sparkles size={34} /><h3>Não sabe por onde começar?</h3><p>Conte sua ideia. A gente monta o caminho.</p><a href="#contato">Falar com especialista <ArrowUpRight size={18} /></a></article>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA BAND */}
-      <section className="px-5 py-12">
-        <div
-          data-reveal
-          className="mx-auto max-w-6xl overflow-hidden rounded-[2rem] bg-gradient-to-br from-gold via-gold-deep to-coral px-8 py-14 text-center text-surface"
-        >
-          <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Sua obra pede a cor certa?
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-surface/90">
-            Fale com a gente agora e receba orientação de quem entende do assunto.
-          </p>
-          <a
-            href="#vendedores"
-            className="mt-7 inline-block rounded-full bg-foreground px-8 py-3.5 font-bold text-surface transition-transform hover:scale-105"
-          >
-            Falar com um vendedor
-          </a>
-        </div>
-      </section>
+        <section id="diferenciais" className="benefits-section">
+          <div className="benefits-sticky"><p className="section-kicker">Por que Goldcril</p><h2>Confiança em<br />cada <em>demão.</em></h2><p>Atendimento próximo, escolhas inteligentes e produtos que entregam o que prometem.</p><div className="benefits-visual"><OryxPhone/><div className="quality-seal"><ShieldCheck /><span>Escolha<br />assistida</span></div></div></div>
+          <div className="benefit-list">{BENEFITS.map(([n,t,d]) => <article data-benefit key={n}><span>{n}</span><div><h3>{t}</h3><p>{d}</p></div><Check /></article>)}</div>
+        </section>
 
-      {/* VENDEDORES */}
-      <section id="vendedores" className="px-5 py-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="max-w-2xl">
-            <h2 data-reveal className="text-3xl font-extrabold tracking-tight sm:text-5xl">
-              Fale com um vendedor
-            </h2>
-            <span data-underline className="mt-4 block h-1 w-28 rounded bg-gold" />
-            <p data-reveal className="mt-4 text-lg text-muted">
-              Escolha quem vai te atender e chame direto no WhatsApp.
-            </p>
-          </div>
-          <div data-stagger className="mt-12 grid gap-6 sm:grid-cols-2">
-            {SELLERS.map((s) => (
-              <a
-                key={s.phone}
-                href={waLink(s.phone)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-5 rounded-3xl border border-line bg-surface p-7 transition-transform hover:-translate-y-1.5"
-              >
-                <span
-                  className="grid h-16 w-16 shrink-0 place-items-center rounded-full text-2xl font-extrabold text-surface"
-                  style={{ background: s.accent }}
-                >
-                  {s.name[0]}
-                </span>
-                <span className="flex-1">
-                  <span className="block text-xs font-bold uppercase tracking-wide text-muted">
-                    {s.role}
-                  </span>
-                  <span className="block text-xl font-bold">{s.name}</span>
-                  <span className="mt-1 block text-sm font-semibold text-muted">
-                    {s.display}
-                  </span>
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-teal px-4 py-2 text-sm font-bold text-surface transition-transform group-hover:scale-105">
-                  <MessageCircle className="h-4 w-4" /> WhatsApp
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
+        <section id="contato" className="contact-section">
+          <div className="contact-glow" />
+          <div data-reveal className="contact-copy"><p className="section-kicker">Vamos colorir essa ideia?</p><h2>Seu próximo ambiente<br />começa com um <em>olá.</em></h2><p>Escolha um especialista e fale agora pelo WhatsApp.</p></div>
+          <div className="seller-grid">{SELLERS.map((seller) => <a data-reveal href={waLink(seller.phone)} target="_blank" rel="noreferrer" className="seller-card glass" style={{"--seller-color":seller.color} as React.CSSProperties} key={seller.phone}><span className="seller-shine"/><span className="seller-avatar" style={{ background: seller.color }}><span className="seller-initial">{seller.name[0]}</span></span><span className="seller-info"><small>Especialista Goldcril</small><strong>{seller.name}</strong><small>{seller.display}</small></span><span className="seller-arrow"><MessageCircle size={21} /></span></a>)}</div>
+          <div className="contact-info"><a href={MAPS_LINK} target="_blank" rel="noreferrer"><MapPin /> <span>{ADDRESS}</span></a><a href={INSTAGRAM} target="_blank" rel="noreferrer"><Camera /> <span>@goldcril_tintas</span></a><a href={waLink(SELLERS[0].phone)} target="_blank" rel="noreferrer"><Phone /> <span>Atendimento por WhatsApp</span></a></div>
+        </section>
+      </main>
 
-      {/* LOCATION + CONTACT */}
-      <section id="local" className="px-5 py-20">
-        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2">
-          <div>
-            <h2 data-reveal className="text-3xl font-extrabold tracking-tight sm:text-5xl">
-              Onde estamos
-            </h2>
-            <span data-underline className="mt-4 block h-1 w-28 rounded bg-teal" />
-
-            <div data-stagger className="mt-8 space-y-4">
-              <div className="rounded-2xl border border-line bg-surface p-5">
-                <p className="flex items-center gap-1.5 text-sm font-bold text-gold-deep">
-                  <MapPin className="h-4 w-4" /> Endereço
-                </p>
-                <p className="mt-1 text-lg font-semibold">{ADDRESS}</p>
-                <a
-                  href={MAPS_LINK}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-blue underline-offset-2 hover:underline"
-                >
-                  Abrir no Google Maps <ArrowUpRight className="h-4 w-4" />
-                </a>
-              </div>
-              <div className="rounded-2xl border border-line bg-surface p-5">
-                <p className="flex items-center gap-1.5 text-sm font-bold text-gold-deep">
-                  <Phone className="h-4 w-4" /> Telefone / WhatsApp
-                </p>
-                <div className="mt-2 flex flex-col gap-2">
-                  {SELLERS.map((s) => (
-                    <a
-                      key={s.phone}
-                      href={waLink(s.phone)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between text-lg font-semibold hover:text-gold"
-                    >
-                      <span>{s.name}</span>
-                      <span className="text-muted">{s.display}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-              <a
-                href={INSTAGRAM}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-2xl border border-line bg-surface p-5 text-center font-bold transition-colors hover:border-coral"
-              >
-                <Camera className="h-5 w-5 text-coral" /> Siga no Instagram @goldcril_tintas
-              </a>
-            </div>
-          </div>
-
-          {/* map embed */}
-          <div data-reveal className="overflow-hidden rounded-[2rem] border border-line bg-surface shadow-sm">
-            <iframe
-              title="Localização Goldcril Tintas"
-              className="h-full min-h-[380px] w-full"
-              loading="lazy"
-              allowFullScreen
-              referrerPolicy="strict-origin-when-cross-origin"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1912.032892990442!2d-49.393978561239294!3d-16.573195996045442!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x935e634b35a397b5%3A0x83261ee2a4896001!2sGoldcril%20Tintas!5e0!3m2!1spt-BR!2sbr!4v1784320882876!5m2!1spt-BR!2sbr"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="border-t border-line bg-surface/60 px-5 pb-8 pt-14">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-            {/* brand — logo scaled up via transform so it grows without adding
-                any real height/width to the footer layout */}
-            <div>
-              <Image
-                src="/images/logonobg.png"
-                alt="Goldcril Tintas"
-                width={640}
-                height={640}
-                className="h-14 w-auto origin-top-left scale-[1.9]"
-              />
-              <p className="mt-9 max-w-xs text-sm text-muted">
-                Tintas, texturas e acabamentos com atendimento que entende de
-                obra. A gente acerta a cor, você aproveita o resultado.
-              </p>
-              <a
-                href={INSTAGRAM}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors hover:text-coral"
-              >
-                <Camera className="h-4 w-4 text-coral" /> @goldcril_tintas
-              </a>
-            </div>
-
-            {/* nav */}
-            <div>
-              <h4 className="text-sm font-bold uppercase tracking-wide">Navegação</h4>
-              <ul className="mt-4 space-y-2.5 text-sm text-muted">
-                <li><a href="#produtos" className="transition-colors hover:text-gold">Produtos</a></li>
-                <li><a href="#diferenciais" className="transition-colors hover:text-gold">Diferenciais</a></li>
-                <li><a href="#vendedores" className="transition-colors hover:text-gold">Vendedores</a></li>
-                <li><a href="#local" className="transition-colors hover:text-gold">Onde estamos</a></li>
-              </ul>
-            </div>
-
-            {/* contact */}
-            <div>
-              <h4 className="text-sm font-bold uppercase tracking-wide">Fale com a gente</h4>
-              <ul className="mt-4 space-y-2.5 text-sm text-muted">
-                {SELLERS.map((s) => (
-                  <li key={s.phone}>
-                    <a
-                      href={waLink(s.phone)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 transition-colors hover:text-gold"
-                    >
-                      <MessageCircle className="h-4 w-4 text-teal" />
-                      {s.name} · {s.display}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* address */}
-            <div>
-              <h4 className="text-sm font-bold uppercase tracking-wide">Onde estamos</h4>
-              <p className="mt-4 flex items-start gap-2 text-sm text-muted">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold-deep" />
-                {ADDRESS}
-              </p>
-              <a
-                href={MAPS_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-blue underline-offset-2 hover:underline"
-              >
-                Abrir no Google Maps <ArrowUpRight className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
-
-          {/* bottom bar */}
-          <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-line pt-6 text-xs text-muted sm:flex-row">
-            <p>© {2026} Goldcril Tintas · Todos os direitos reservados.</p>
-            <p>Goianira - GO · Brasil</p>
-          </div>
-        </div>
-      </footer>
+      <footer><div className="footer-brand"><Image src="/images/goldcril-liquid-logo.png" alt="Goldcril Tintas" width={1900} height={800} /><p>Cores que transformam.</p></div><div className="footer-meta"><span>© 2026 GOLDCRIL TINTAS</span><span>GOIANIRA — GO · BRASIL</span><a href="#inicio">VOLTAR AO TOPO ↑</a></div></footer>
     </div>
   );
 }
